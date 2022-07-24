@@ -10,30 +10,44 @@ function App() {
 
   const handleClick = (i) => {
     const newBoard = [...board]; //make a copy of the board
-
     if (newBoard?.[i]) return; //only set the square if the square is available. This must be outside of the setBoard setter otherwise it returns an error.
 
-    setBoard(() => {
-      newBoard[i] = player; //set the squre played
-      setPlayer(player === "O" ? "X" : "O"); //Set the next player
-      return newBoard;
+    setBoard((currBoard) => {
+      currBoard[i] = player;
+      return currBoard;
     });
 
-    console.log(board[0]);
-    console.log(newBoard[0]);
-    console.log(player);
-    checkWin(player) ? setWinner(player) : ""; //console.log("no winner yet");
+    // checkWin(player) ? setWinner(player) : ""; //console.log("no winner yet");
+    setPlayer((currPlayer) => (currPlayer === "O" ? "X" : "O"));
 
-    // setWinner();
+    if (checkWin(player)) {
+      setWinner(player);
+      return;
+    }
+
+    // setBoard((currBoard) => {
+    //   //passing a function to modify the state based on the current state
+    //   currBoard[i] = player;
+    // });
+    // setPlayer((currPlayer) => (currPlayer === "O" ? "X" : "O"));
   };
+
+  useEffect(() => {
+    // console.log(board);
+    console.log("current player:" + player);
+    console.log(board);
+  }, [
+    player,
+  ]); /*dont put console.log inside the function to show the current values. Instead, use useEffect*/
 
   const restartGame = () => {
     setBoard(Array(9).fill(null));
-    setPlayer("O");
+    setPlayer("X");
     setWinner(null);
   };
 
   const checkWin = (player) => {
+    console.log("checking win for:" + player);
     const winningPatterns = [
       [0, 1, 2],
       [3, 4, 5],
@@ -53,12 +67,20 @@ function App() {
     //https://github.com/WebDevSimplified/JavaScript-Tic-Tac-Toe/blob/master/script.js
 
     return winningPatterns.some((pattern) => {
+      console.log("Checking win for pattern: " + pattern);
       return pattern.every((index) => {
         //we want to check that every element has the same class(player's value) (i.e X, or O)
         //we want to check which cell has 0, 1, 2 combination. We want to check the classList and see if it contains the class for their current. If the current class is in all 3 of these elements inside the combination, then we found a winner. So for every cell inside the combination is correct for at least one of the winning combination, then we have a winner.
-        // console.log(board?.[index]);
-        // console.log(player);
-        return board?.[index] === player;
+        let currValueAtSquare = board?.[index];
+        let currentValueAtSquareMatches = currValueAtSquare === player;
+        console.log(
+          "Current value at index: " +
+            currValueAtSquare +
+            " matches player: " +
+            currentValueAtSquareMatches
+        );
+
+        return currentValueAtSquareMatches;
       });
     });
   };
