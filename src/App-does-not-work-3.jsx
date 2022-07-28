@@ -1,35 +1,40 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import "./App.css";
 import Board from "./components/Board";
 
 function App() {
   const [board, setBoard] = useState(Array(9).fill(null));
-  const [player, setPlayer] = useState("O");
+  const [player, setPlayer] = useState("X");
   const [winner, setWinner] = useState("");
 
-  useEffect(() => {
-    if (checkWin()) {
-      setWinner(player);
-      return;
-    }
-    setPlayer(player === "O" ? "X" : "O");
-  }, [board]);
+  // useEffect(() => {
+  //   // console.log(board);
+  //   // console.log(player);
+  // }, [board]);
 
   const handleClick = (i) => {
-    if (winner.length > 0) return;
-    const newBoard = [...board];
-    newBoard[i] = player;
-    setBoard(newBoard);
+    if (winner.length > 0) return; //only set the square if the square is available. This must be outside of the setBoard setter otherwise it returns an error.
+
+    flushSync(() => {
+      setBoard((prevBoard) => {
+        const newBoard = [...prevBoard]; //make a copy of the board
+        newBoard[i] = player;
+        return newBoard;
+      });
+    });
+
+    checkWin(board);
+    setPlayer(player === "O" ? "X" : "O");
   };
 
   const restartGame = () => {
     setBoard(Array(9).fill(null));
-    setPlayer("O");
+    setPlayer("X");
     setWinner("");
   };
 
-  const checkWin = () => {
+  const checkWin = (board) => {
     const winningPatterns = [
       [0, 1, 2],
       [3, 4, 5],
@@ -40,9 +45,15 @@ function App() {
       [0, 4, 8],
       [2, 4, 6],
     ];
+    console.log("player: " + player);
+    console.log("board: " + board);
     return winningPatterns.some((pattern) => {
+      console.log("pattern: " + pattern);
       return pattern.every((index) => {
-        return board[index] === player;
+        const matches = board[index] === player;
+        console.log("matches: " + matches);
+        console.log("square: " + board[index]);
+        return matches;
       });
     });
   };

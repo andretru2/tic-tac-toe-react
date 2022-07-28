@@ -8,24 +8,33 @@ function App() {
   const [player, setPlayer] = useState("O");
   const [winner, setWinner] = useState("");
 
+  const initialRender = useRef(true);
+
   useEffect(() => {
-    if (checkWin()) {
-      setWinner(player);
-      return;
+    if (initialRender.current) {
+      initialRender.current = false;
+    } else {
+      if (checkWin()) {
+        setWinner(player);
+        return;
+      }
+      setPlayer(player === "O" ? "X" : "O");
     }
-    setPlayer(player === "O" ? "X" : "O");
   }, [board]);
 
   const handleClick = (i) => {
-    if (winner.length > 0) return;
-    const newBoard = [...board];
-    newBoard[i] = player;
-    setBoard(newBoard);
+    if (winner.length > 0) return; //only set the square if the square is available. This must be outside of the setBoard setter otherwise it returns an error.
+
+    setBoard((prevBoard) => {
+      const newBoard = [...prevBoard]; //make a copy of the board
+      newBoard[i] = player;
+      return newBoard;
+    });
   };
 
   const restartGame = () => {
     setBoard(Array(9).fill(null));
-    setPlayer("O");
+    setPlayer("X");
     setWinner("");
   };
 
@@ -40,9 +49,15 @@ function App() {
       [0, 4, 8],
       [2, 4, 6],
     ];
+    console.log("player: " + player);
+    console.log("board: " + board);
     return winningPatterns.some((pattern) => {
+      console.log("pattern: " + pattern);
       return pattern.every((index) => {
-        return board[index] === player;
+        const matches = board[index] === player;
+        console.log("matches: " + matches);
+        console.log("square: " + board[index]);
+        return matches;
       });
     });
   };

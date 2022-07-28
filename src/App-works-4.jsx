@@ -25,7 +25,7 @@ function App() {
 
   const restartGame = () => {
     setBoard(Array(9).fill(null));
-    setPlayer("O");
+    setPlayer("X");
     setWinner("");
   };
 
@@ -40,6 +40,7 @@ function App() {
       [0, 4, 8],
       [2, 4, 6],
     ];
+
     return winningPatterns.some((pattern) => {
       return pattern.every((index) => {
         return board[index] === player;
